@@ -36,9 +36,18 @@ def main():
             for branch in branches:
                 write_output(branch)
     elif args.complete.startswith("git add"):
-        files = subprocess.getoutput("git ls-files --exclude-standard --others")
+        files = (
+            subprocess.getoutput("git ls-files --exclude-standard --others")
+            .strip()
+            .split("\n")
+        )
+        files.extend(
+            subprocess.getoutput("git ls-files --modified").strip().split("\n")
+        )
         filter = args.complete[len("git add") :].strip()
-        for line in files.split("\n"):
+        for line in files:
+            if line.strip() == "":
+                continue
             if len(filter) > 0:
                 if not line.startswith(filter):
                     continue
